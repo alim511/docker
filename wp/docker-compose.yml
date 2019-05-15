@@ -1,0 +1,42 @@
+#basic docker compose file for WP instance
+
+version: '3.1'
+
+services:
+
+  db:
+    ports:
+      - 3307:3306
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+
+  adminer:
+    image: adminer
+    ports:
+      - 82:8080
+
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - 81:80
+    volumes:
+      - ./wp-content/themes:/var/www/html/wp-content/themes
+      - ./wp-content/plugins:/var/www/html/wp-content/plugins
+      - ./wp-content/uploads:/var/www/html/wp-content/uploads
+      - ./wp-content/upgrade:/var/www/html/wp-content/upgrade
+      - ./wp-content/languages:/var/www/html/wp-content/languages
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: user
+      WORDPRESS_DB_PASSWORD: user
+      WORDPRESS_DB_NAME: database
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME','http://localhost:81');
+        define('WP_SITEURL','http://localhost:81');
+      WORDPRESS_TABLE_PREFIX: wp_
+    depends_on:
+      - db
